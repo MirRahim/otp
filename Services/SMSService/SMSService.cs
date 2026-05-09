@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using otpService.Common;
-using Pat.Services.Sms.Dto;
+using otpService.Services.SMSService.Dto;
+
 using System.Text;
 using System.Text.Json;
 
