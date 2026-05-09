@@ -1,0 +1,6 @@
+@otpService_HostAddress = http://localhost:5267
+
+GET {{otpService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
