@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using otpService.Controllers.Dto;
 using otpService.Services.OtpService;
 using System.Numerics;
 
@@ -16,9 +17,9 @@ namespace otpService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendOtp([FromBody] string phone)
+        public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto)
         {
-            await _otpService.SendOtpAsync(phone);
+            await _otpService.SendOtpAsync(dto.Phone);
             return Ok("OTP sent");
         }
 

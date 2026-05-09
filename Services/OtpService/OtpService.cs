@@ -12,7 +12,7 @@ namespace otpService.Services.OtpService
             _redis = redis.GetDatabase();
         }
 
-        public async Task SendOtpAsync(string phone)
+        public async Task<bool> SendOtpAsync(string phone)
         {
             var otp = Random.Shared.Next(100000, 999999).ToString();
 
@@ -35,6 +35,7 @@ namespace otpService.Services.OtpService
 
             // اینجا بعداً SMS service میاد
             Console.WriteLine($"OTP for {phone}: {otp}");
+            return true;
         }
 
         public async Task<bool> VerifyOtpAsync(string phone, string code)

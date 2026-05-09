@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using otpService.Services;
+using otpService.Services.OtpService;
 using otpService.Services.Sms;
 using StackExchange.Redis;
 using System.Text;
@@ -67,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<TokenService>();
 //builder.Services.TryAdd(ServiceDescriptor.Singleton<ILoggerService, MongoLoggerService>());
 builder.Services.AddScoped<SMSService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 
 
 

@@ -1,4 +1,4 @@
-﻿namespace otpService.Controllers
+﻿namespace otpService.Controllers.Dto
 {
     public class VerifyRequest
     {
