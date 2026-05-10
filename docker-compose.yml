@@ -9,13 +9,18 @@ services:
     depends_on:
       - redis
       - postgres
+    restart: unless-stopped
+
   redis:
     image: redis:7
+    retart: unless-stopped
     ports:
       - "6379:6379"
 
+
   postgres:
     image: postgres:16
+    restart: unless-stopped
     environment:
       POSTGRES_USER: otp
       POSTGRES_PASSWORD: otp123
@@ -25,6 +30,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
