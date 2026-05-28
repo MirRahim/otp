@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace otpService.Controllers.Dto
+namespace OtpSystem.API.Controllers.Dto
 {
-    public class SendOtpDto
+    public class VerifyRequest
     {
         [Phone]
         public string Phone { get; set; }
+        public string Code { get; set; }
     }
 }

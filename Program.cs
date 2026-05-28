@@ -7,70 +7,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using otpService.Services;
-using otpService.Services.OtpService;
-using otpService.Services.Sms;
+using OtpSystem.Application.Interfaces;
+using OtpSystem.Application.Services;
+using OtpSystem.Application.Services.OtpService;
+using OtpSystem.Application.Services.SMSService;
+using OtpSystem.Infrastructure.Cache;
+using OtpSystem.Infrastructure.Sms;
 using StackExchange.Redis;
 using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = "SmartScheme";
-    options.DefaultChallengeScheme = "SmartScheme";
-})
-.AddPolicyScheme("SmartScheme", "JWT or Cookie", options =>
-{
-    options.ForwardDefaultSelector = context =>
-    {
-        var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-
-        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-            return JwtBearerDefaults.AuthenticationScheme;
-
-        return CookieAuthenticationDefaults.AuthenticationScheme;
-    };
-})
-.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-    };
-})
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-{
-    options.LoginPath = "/login";
-    options.AccessDeniedPath = "/forbidden";
-    options.Cookie.Name = "AuthCookie";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.ExpireTimeSpan = TimeSpan.FromDays(7);
-
-    options.Events.OnRedirectToLogin = context =>
-    {
-        context.Response.StatusCode = 401;
-        return Task.CompletedTask;
-    };
-});
-
-
 builder.Services.AddScoped<TokenService>();
-//builder.Services.TryAdd(ServiceDescriptor.Singleton<ILoggerService, MongoLoggerService>());
 builder.Services.AddScoped<SMSService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
+// SMS providers
+builder.Services.AddHttpClient<SmsIrService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["SmsConfiguration:SMS.ir:Uri"]);
+    client.DefaultRequestHeaders.Add(
+        "x-api-key",
+        builder.Configuration["SmsConfiguration:SMS.ir:API_TOKEN"]
+    );
+});
 
+builder.Services.AddScoped<FallbackSmsService>();
+builder.Services.AddScoped<SmsSenderService>();
 
+// Register SmsSenderService as the ISmsService implementation
+builder.Services.AddScoped<ISmsService, SmsSenderService>();
+
+// Cache
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -132,29 +101,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
     )
 );
 
-//builder.Services.AddHangfire(
-//    config => config.UseSimpleAssemblyNameTypeSerializer().
-//    UseRecommendedSerializerSettings().UseMemoryStorage()
-//);
-//builder.Services.AddHangfireServer();
-
 var app = builder.Build();
-
-//using (var scope = app.Services.CreateScope())
-//{
-//    var recurringJobManager = scope.ServiceProvider
-//        .GetRequiredService<IRecurringJobManager>();
-
-//    recurringJobManager.AddOrUpdate<TrialEndingSMSJob>(
-//        "trial-sms",
-//        job => job.Execute(),
-//        "0 9 * * *",
-//        new RecurringJobOptions
-//        {
-//            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tehran")
-//        }
-//    );
-//}
 
 app.UseSwagger();
 app.UseSwaggerUI();

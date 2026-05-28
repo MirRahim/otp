@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 
-namespace otpService.Services.OtpService
+namespace OtpSystem.Application.Services.OtpService
 {
     public class OtpService : IOtpService
     {

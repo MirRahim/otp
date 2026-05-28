@@ -1,4 +1,4 @@
-﻿namespace otpService.Services.SMSService.Dto
+﻿namespace OtpSystem.Application.Services.SMSService.Dto
 {
     public class VerifySendParameterModel
     {

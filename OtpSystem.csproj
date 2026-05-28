@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>OtpSystem</RootNamespace>
+    <AssemblyName>OtpSystem</AssemblyName>  
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +18,13 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.12.14" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="API\Middlewares\" />
+    <Folder Include="API\Extensions\" />
+    <Folder Include="Infrastructure\Resilience\" />
+    <Folder Include="Infrastructure\Persistence\" />
   </ItemGroup>
 
 </Project>

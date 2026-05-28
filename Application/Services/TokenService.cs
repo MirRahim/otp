@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 
-namespace otpService.Services;
+namespace OtpSystem.Application.Services;
 
 public class TokenService
 {

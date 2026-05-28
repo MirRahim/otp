@@ -1,4 +1,4 @@
-﻿namespace otpService.Services.OtpService
+﻿namespace OtpSystem.Application.Services.OtpService
 {
     public interface IOtpService
     {

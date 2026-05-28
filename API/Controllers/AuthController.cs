@@ -1,32 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using otpService.Controllers.Dto;
-using otpService.Services.OtpService;
+using OtpSystem.API.Controllers.Dto;
+using OtpSystem.Application.Services.OtpService;
 using System.Numerics;
 
-namespace otpService.Controllers
+namespace OtpSystem.API.Controllers
 {
 
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class AuthController : Controller
     {
-        private readonly IOtpService _otpService;
+        private readonly IOtpService _OtpSystem;
         public AuthController(IOtpService otp)
         {
-            _otpService = otp;
+            _OtpSystem = otp;
         }
 
         [HttpPost]
         public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto)
         {
-            await _otpService.SendOtpAsync(dto.Phone);
+            await _OtpSystem.SendOtpAsync(dto.Phone);
             return Ok("OTP sent");
         }
 
         [HttpPost]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyRequest req)
         {
-            var result = await _otpService.VerifyOtpAsync(req.Phone, req.Code);
+            var result = await _OtpSystem.VerifyOtpAsync(req.Phone, req.Code);
             return Ok(result);
         }
     }
