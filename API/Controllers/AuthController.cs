@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OtpSystem.API.Controllers.Dto;
 using OtpSystem.Application.Services.OtpService;
 using System.Numerics;
@@ -17,6 +18,7 @@ namespace OtpSystem.API.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("per-phone")]
         public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto)
         {
             await _OtpSystem.SendOtpAsync(dto.Phone);

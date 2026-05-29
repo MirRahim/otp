@@ -1,4 +1,5 @@
 ﻿using OtpSystem.Application.Interfaces;
+using Polly.CircuitBreaker;
 using System.Text;
 using System.Text.Json;
 
@@ -20,11 +21,8 @@ public class SmsIrService : ISmsService
         var payload = new
         {
             Mobile = phone,
-            TemplateId = 347022, // move to config
-            Parameters = new[]
-            {
-                new { Name = "CODE", Value = code }
-            }
+            TemplateId = 347022,
+            Parameters = new[] { new { Name = "CODE", Value = code } }
         };
 
         var content = new StringContent(
@@ -45,6 +43,12 @@ public class SmsIrService : ISmsService
             }
 
             return true;
+        }
+        catch (BrokenCircuitException)
+        {
+            // Circuit is open — don't even try, go straight to fallback
+            _logger.LogWarning("Circuit is OPEN — skipping SmsIr for {Phone}", phone);
+            return false;
         }
         catch (Exception ex)
         {

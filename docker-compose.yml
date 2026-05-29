@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -29,8 +29,10 @@ services:
       - "5432:5432"
 
   rabbitmq:
-    image: rabbitmq:3-management
-    restart: unless-stopped
+    image: docker.arvancloud.ir/rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI → localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest

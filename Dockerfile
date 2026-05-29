@@ -20,4 +20,4 @@ COPY --from=build /app/publish .
 
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "otpService.dll"]
+ENTRYPOINT ["dotnet", "OtpSystem.dll"]
