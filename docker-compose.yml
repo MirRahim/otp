@@ -4,6 +4,19 @@ services:
   api:
     build: .
     container_name: otp-api
+    # environment:
+    #   - ASPNETCORE_ENVIRONMENT=Development
+    #   - Redis__ConnectionString=redis:6379
+    #   - RabbitMq__Host=rabbitmq
+    #   - RabbitMq__Username=guest
+    #   - RabbitMq__Password=guest
+    #   - Jwt__Key=${JWT_KEY}
+    #   - Jwt__Issuer=OtpSystem
+    #   - Jwt__Audience=OtpSystem
+    #   - SmsConfiguration__SMS.ir__Uri=https://api.sms.ir
+    #   - SmsConfiguration__SMS.ir__API_TOKEN=${SMS_API_TOKEN}
+    #   - SmsConfiguration__SMS.ir__TemplateId=347022
+
     ports:
       - "8080:8080"
     depends_on:
@@ -18,15 +31,15 @@ services:
       - "6379:6379"
 
 
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: otp
-      POSTGRES_PASSWORD: otp123
-      POSTGRES_DB: otpdb
-    ports:
-      - "5432:5432"
+  # postgres:
+  #   image: postgres:16
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: otp
+  #     POSTGRES_PASSWORD: otp123
+  #     POSTGRES_DB: otpdb
+  #   ports:
+  #     - "5432:5432"
 
   rabbitmq:
     image: docker.arvancloud.ir/rabbitmq:3-management
@@ -36,3 +49,20 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: otpsystem
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped

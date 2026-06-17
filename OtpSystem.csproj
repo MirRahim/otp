@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\Resilience\" />
-    <Folder Include="Infrastructure\Persistence\" />
   </ItemGroup>
 
 </Project>

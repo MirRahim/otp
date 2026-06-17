@@ -6,6 +6,7 @@ namespace OtpSystem.Domain.Entities;
 public class OtpRecord
 {
     public Guid Id { get; private set; }
+    public Guid TenantId { get; private set; }
     public string Phone { get; private set; }
     public string Code { get; private set; }
     public OtpStatus Status { get; private set; }
@@ -18,11 +19,12 @@ public class OtpRecord
 
     private OtpRecord() { } // EF Core
 
-    public static OtpRecord Create(string phone, string code, TimeSpan ttl)
+    public static OtpRecord Create(Guid tenantId, string phone, string code, TimeSpan ttl)
     {
         return new OtpRecord
         {
             Id = Guid.NewGuid(),
+            TenantId = tenantId,
             Phone = phone,
             Code = code,
             Status = OtpStatus.Pending,

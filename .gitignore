@@ -113,3 +113,5 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 .vs
+.env
+appsettings.Development.json
