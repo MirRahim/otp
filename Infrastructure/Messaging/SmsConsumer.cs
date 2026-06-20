@@ -7,11 +7,16 @@ namespace OtpSystem.Infrastructure.Messaging;
 public class SmsConsumer : IConsumer<SendOtpMessage>
 {
     private readonly ISmsService _smsService;
+    private readonly IWebhookService _webhook;
     private readonly ILogger<SmsConsumer> _logger;
 
-    public SmsConsumer(ISmsService smsService, ILogger<SmsConsumer> logger)
+    public SmsConsumer(
+        ISmsService smsService,
+        IWebhookService webhook,
+        ILogger<SmsConsumer> logger)
     {
         _smsService = smsService;
+        _webhook = webhook;
         _logger = logger;
     }
 
@@ -19,18 +24,33 @@ public class SmsConsumer : IConsumer<SendOtpMessage>
     {
         var message = context.Message;
 
-        _logger.LogInformation("Processing OTP SMS for {Phone}", message.Phone);
+        _logger.LogInformation(
+            "Processing OTP SMS for {TenantId}:{Phone}",
+            message.TenantId, message.Phone);
 
         var sent = await _smsService.SendOtpAsync(message.Phone, message.Code);
 
-        if (!sent)
+        // fire webhook regardless of success/failure
+        if (!string.IsNullOrEmpty(message.WebhookUrl))
         {
-            _logger.LogError("Failed to send OTP SMS for {Phone} after all retries", message.Phone);
-
-            // MassTransit will retry based on retry policy below
-            throw new Exception($"SMS send failed for {message.Phone}");
+            await _webhook.SendAsync(message.WebhookUrl, new WebhookPayload
+            {
+                Event = sent ? "otp.sent" : "otp.failed",
+                TenantId = message.TenantId,
+                Phone = message.Phone,
+                Success = sent,
+                Timestamp = DateTime.UtcNow
+            });
         }
 
-        _logger.LogInformation("OTP SMS sent successfully for {Phone}", message.Phone);
+        if (!sent)
+        {
+            _logger.LogError(
+                "Failed to send OTP for {TenantId}:{Phone}",
+                message.TenantId, message.Phone);
+
+            // throw so MassTransit retries + eventually DLQs
+            throw new Exception($"SMS send failed for {message.Phone}");
+        }
     }
 }

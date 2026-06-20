@@ -16,6 +16,7 @@ using OtpSystem.Infrastructure.Persistence;
 using OtpSystem.Infrastructure.Persistence.Repositories;
 using OtpSystem.Infrastructure.Resilience;
 using OtpSystem.Infrastructure.Sms;
+using OtpSystem.Infrastructure.Webhook;
 using StackExchange.Redis;
 using System.Text;
 
@@ -95,6 +96,11 @@ builder.Services.AddHttpClient<SmsIrService>(client =>
     );
 }).AddSmsResiliencePipeline();
 
+builder.Services.AddHttpClient<IWebhookService, WebhookService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 builder.Services.AddScoped<FallbackSmsService>();
 builder.Services.AddScoped<SmsSenderService>();
 builder.Services.AddScoped<ISmsService, SmsSenderService>();
@@ -172,6 +178,15 @@ builder.Services.AddCors(options =>
 // ═════════════════════════════════════════════════════════════════════
 var app = builder.Build();
 // ═════════════════════════════════════════════════════════════════════
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    await db.Database.MigrateAsync();   // run migrations automatically
+    await DatabaseSeeder.SeedAsync(db, logger);
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
